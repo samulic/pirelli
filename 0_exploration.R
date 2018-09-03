@@ -43,7 +43,8 @@ d %>% group_by(YEAR) %>% summarise(observations = n(),
                                    unique_products = length(unique(PRODUCT_ID)), 
                                    avg_sales = mean(SALES),
                                    sum_sales = sum(SALES))
-# Ok not true, last year just generated much fewer sales (still strange though). 
+# Ok we have roughly the same number observation but that doesn't mean the sales were counted over 12 months
+# No way to know :( ...? But we strongly believe it is not a full year of sales.
 # We notice that starting from year 5 we have a few repetitions of the same product ID.
 # Let's inspect the duplicated product ID
 (duplicates <- group_by(d, YEAR, PRODUCT_ID) %>% summarise(n = n()) %>% filter(n > 1))
@@ -71,3 +72,33 @@ par(mfrow=c(1,1))
 formula <- paste("SALES ~ ", paste(brands_var, collapse = " + "), sep = "")
 fit <- lm(data = d, as.formula(formula))
 summary(fit)
+
+
+
+###### CATEGORICAL ###### or tires' characteristic
+describe(d[,categorical_var])
+d[d$"CATEGORICAL_1" == 9,]
+d[d$"CATEGORICAL_2" == 19,]
+d[d$"CATEGORICAL_2" == 18,]
+d[d$"CATEGORICAL_3" == 8,]
+prop.table(table(d$CATEGORICAL_4))
+d[d$"CATEGORICAL_6" == 7,]
+d[d$"CATEGORICAL_6" == 5,]
+d[d$"CATEGORICAL_7" == 1,]
+
+# Do identical products have the same categorical values?
+id_cat <- group_by(d, PRODUCT_ID, CATEGORICAL_0, CATEGORICAL_2, CATEGORICAL_3, CATEGORICAL_4, CATEGORICAL_5, CATEGORICAL_6, CATEGORICAL_7, CATEGORICAL_8) %>%
+  summarise(years = n())
+id_cat[duplicated(id_cat$PRODUCT_ID),] # Yes, except three products
+# These are the same we already discovered as duplicates
+d[d$PRODUCT_ID %in% unique(duplicates$PRODUCT_ID), c("PRODUCT_ID", categorical_var)]
+
+
+par(mfrow=c(3,3))
+for (cat in categorical_var) {
+  formula <- as.formula(paste("SALES ~", cat))
+  boxplot(formula, data = d, main = cat, col = "lightblue", ylab = "Sales")
+}
+# Ok this is not useful since we know nothing about categorical and their values.
+
+
