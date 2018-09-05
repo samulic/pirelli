@@ -69,8 +69,8 @@ for(i in near_zero_var) {
 par(mfrow=c(1,1))
 
 # Let's build a linear model to predict sales from brands
-formula <- paste("SALES ~ ", paste(brands_var, collapse = " + "), sep = "")
-fit <- lm(data = d, as.formula(formula))
+formula <- as.formula(paste("SALES ~ ", paste(brands_var, collapse = " + "), sep = ""))
+fit <- lm(data = d, formula)
 summary(fit)
 
 
